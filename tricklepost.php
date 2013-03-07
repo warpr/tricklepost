@@ -18,6 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  **/
+
+require (dirname (__FILE__)."/tweet.php");
+
 $config = parse_ini_file('tricklepost.ini');
 $feeds = parse_ini_file('feeds.ini', true);
 
@@ -151,7 +154,12 @@ function ur1Shorten($url)
     return $hrefs->item(0)->getAttribute('href');
 }
 
-function post($status, $username, $password, $endpoint) {
+function post($status, $username, $password, $endpoint)
+{
+    if ($endpoint == "twitter")
+    {
+        return tweet ($username, $password, $status);
+    }
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_USERAGENT, "triklepost");
