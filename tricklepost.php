@@ -69,8 +69,8 @@ foreach ($feeds as $feed) {
             continue;
         }
 
-        $title = truncate(urldecode($row['title']));
         $short_link = ur1Shorten($row['link']);
+        $title = truncate(urldecode($row['description']), $short_link);
 
         // If we can't get ur1.ca to work, try again later
         if (empty($short_link)) {
@@ -93,6 +93,7 @@ foreach ($feeds as $feed) {
 
         mysql_query($qry) or die('Query failed: ' . mysql_error());
 
+        print "Endpoint: ".$row['endpoint']."\n";
         if (post($status, $row['username'], $row['password'], $row['endpoint'])) {
             print "Posted: $status\n\n";
         } else {
@@ -107,14 +108,18 @@ foreach ($feeds as $feed) {
 
 mysql_close($connection);
 
-function truncate($str) {
+function truncate($str, $short_link) {
 
-    if (strlen($str) > 100) {
-        // truncate at 100 chars -- Hey, we have to leave some room for the link
-        $str = substr($str, 0, 100) . '...';
+    $room = 140 - strlen (" $short_link");
+    $str = str_replace (array ("\n", "\t"), " ", $str);
+    $str = trim(htmlspecialchars_decode($str));
+
+    if (strlen($str) > $room) {
+        // truncate to make room for the link
+        $str = substr($str, 0, $room - 3) . '...';
     }
 
-    return trim(htmlspecialchars_decode($str));
+    return $str;
 }
 
 function ur1Shorten($url)

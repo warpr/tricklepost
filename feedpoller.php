@@ -54,21 +54,35 @@ mysql_close($connection);
 
 print "Done.\n";
 
+
+function firstParagraph ($html)
+{
+    $dom = new DOMDocument;
+    $dom->loadHTML ($html);
+    foreach ($dom->getElementsByTagName ('p') as $node) {
+        return $node->textContent;
+    }
+
+    return "";
+}
+
 function insertItem($item, $feedsource, $username, $password, $endpoint)
 {
     global $connection;
 
     $title     = $item->get_title();
+    $description = firstParagraph ($item->get_description());
+
     $permalink = $item->get_permalink();
     $itemdate  = $item->get_date();
 
     // Don't bother with incomplete items
 
-    if (empty($title) || empty($permalink) || empty($itemdate)) {
+    if (empty($title) || empty($description) || empty($permalink) || empty($itemdate)) {
         return;
     }
 
-    $hashstr = $feedsource . $title . $permalink . $itemdate;
+    $hashstr = $feedsource . $title . $description . $permalink . $itemdate . $endpoint;
 
     $hash = sha1($hashstr);
 
@@ -78,7 +92,7 @@ function insertItem($item, $feedsource, $username, $password, $endpoint)
     $qry .= "'$feedsource', ";
     $qry .= '\'' . $permalink . '\', ';
     $qry .= '\'' . urlencode($title) . '\', ';
-    $qry .= '\'' . urlencode($itemdate) . '\', ';
+    $qry .= '\'' . urlencode($description) . '\', ';
     $qry .= "'$hash', ";
     $qry .= "'$username', ";
     $qry .= "'$password', ";
