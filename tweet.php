@@ -47,22 +47,6 @@ function end_curl ($ch)
     return $page;
 }
 
-function html_xpath ($html, $query)
-{
-    $dom = new DOMDocument ();
-    $dom->recover = true;
-    $dom->strictErrorChecking = false;
-    @$dom->loadHTML ($html);
-    $xpath = new DOMXpath ($dom);
-
-    $elements = $xpath->query ($query);
-    foreach ($elements as $node) {
-        return $node->getAttribute('value');
-    }
-
-    return NULL;
-}
-
 function get_token ($html)
 {
     if (preg_match ("/.*authenticity_token.*value=\"(\w*)\"/", $html, $matches))
